@@ -20,7 +20,7 @@ fn_cron () {
 }
 
 fn_phpenmod () {
-    [[ -e /root/setup/phpenmod ]] && echo 'phpenmod'; cp /root/setup/phpenmod /usr/local/bin/phpenmod || fn_error 'cp phpenmod'
+    [[ -e /root/setup/phpenmod ]] && echo 'phpenmod okay'; cp /root/setup/phpenmod /usr/local/bin/phpenmod || fn_error 'cp phpenmod'
     chmod 0755 /usr/local/bin/phpenmod || fn_error 'chmod phpenmod'
 }
 

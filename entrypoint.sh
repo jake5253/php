@@ -6,14 +6,14 @@ set -eu
 
 ## Variables
 ## https://stackoverflow.com/a/32343069/3441436
-: "${TZ:=""}"                                 # set timezone, example: "Europe/Berlin"
+: "${TZ:="America/New_York"}"                                 # set timezone, example: "Europe/Berlin"
 : "${PHP_ERRORS:="0"}"                        # set 1 to enable
-: "${PHP_MEM_LIMIT:=""}"                      # set Value in MB, example: 128
-: "${PHP_POST_MAX_SIZE:=""}"                  # set Value in MB, example: 250
-: "${PHP_UPLOAD_MAX_FILESIZE:=""}"            # set Value in MB, example: 250
-: "${PHP_MAX_FILE_UPLOADS:=""}"               # set number, example: 20
-: "${CREATE_PHPINFO_FILE:="0"}"               # set 1 to enable
-: "${CREATE_INDEX_FILE:="0"}"                 # set 1 to enable
+: "${PHP_MEM_LIMIT:="128"}"                      # set Value in MB, example: 128
+: "${PHP_POST_MAX_SIZE:="250"}"                  # set Value in MB, example: 250
+: "${PHP_UPLOAD_MAX_FILESIZE:="250"}"            # set Value in MB, example: 250
+: "${PHP_MAX_FILE_UPLOADS:="20"}"               # set number, example: 20
+: "${CREATE_PHPINFO_FILE:="1"}"               # set 1 to enable
+: "${CREATE_INDEX_FILE:="1"}"                 # set 1 to enable
 : "${ENABLE_APACHE_REWRITE:="0"}"             # set 1 to enable
 : "${ENABLE_APACHE_ACTIONS:="0"}"             # set 1 to enable
 : "${ENABLE_APACHE_SSL:="0"}"                 # set 1 to enable
@@ -29,7 +29,7 @@ set -eu
 : "${ENABLE_NGINX_REMOTEIP:="0"}"            # set 1 to enable (use this only behind a proxy/loadbalancer)
 : "${ENABLE_NGINX_STATUS:="0"}"              # set 1 to enable
 
-PHP_INI_FILE_NAME="50-php.ini"
+#PHP_INI_FILE_NAME="50-php.ini"
 lsb_dist="$(. /etc/os-release && echo "$ID")" # get os (example: debian or alpine) - do not change!
 
 ## check if apache in this container image exists
@@ -49,11 +49,13 @@ fi
 ####################################################
 ##################### PHP ##########################
 ####################################################
-mkdir -p /usr/local/etc/php/conf.d/
-touch /usr/local/etc/php/conf.d/${PHP_INI_FILE_NAME}
+#mkdir -p /usr/local/etc/php/conf.d/
+#touch /usr/local/etc/php/conf.d/${PHP_INI_FILE_NAME}
+PHPDIR=/usr/local/lib
+PHP_INI_FILE_NAME=php.ini
 
 ## create php ini file with comment
-echo "; ${PHP_INI_FILE_NAME} create by entrypoint.sh in container image" > /usr/local/etc/php/conf.d/${PHP_INI_FILE_NAME}
+echo "; ${PHP_INI_FILE_NAME} updated by entrypoint.sh" >> ${PHPDIR}/${PHP_INI_FILE_NAME}
 
 ## set TimeZone
 if [ -n "$TZ" ]; then
@@ -62,7 +64,7 @@ if [ -n "$TZ" ]; then
 	#ln -sf /usr/share/zoneinfo/${TZ} /etc/localtime
 	cp /usr/share/zoneinfo/${TZ} /etc/localtime
 	echo ${TZ} >  /etc/timezone
-	echo "date.timezone=${TZ}" >> /usr/local/etc/php/conf.d/${PHP_INI_FILE_NAME}
+	echo "date.timezone=${TZ}" >> ${PHPDIR}/${PHP_INI_FILE_NAME}
 	#if [ "$lsb_dist" = "alpine" ]; then apk del --no-network .fetch-tmp; fi
 	date
 fi
@@ -70,31 +72,31 @@ fi
 ## display PHP error's
 if [ "$PHP_ERRORS" -eq "1" ] ; then
 	echo ">> set display_errors"
-	echo "display_errors = On" >> /usr/local/etc/php/conf.d/${PHP_INI_FILE_NAME}
+	echo "display_errors = On" >> ${PHPDIR}/${PHP_INI_FILE_NAME}
 fi
 
 ## changes the memory_limit
 if [ -n "$PHP_MEM_LIMIT" ]; then
 	echo ">> set memory_limit"
-	echo "memory_limit = ${PHP_MEM_LIMIT}M" >> /usr/local/etc/php/conf.d/${PHP_INI_FILE_NAME}
+	echo "memory_limit = ${PHP_MEM_LIMIT}M" >> ${PHPDIR}/${PHP_INI_FILE_NAME}
 fi
 
 ## changes the post_max_size
 if [ -n "$PHP_POST_MAX_SIZE" ]; then
 	echo ">> set post_max_size"
-	echo "post_max_size = ${PHP_POST_MAX_SIZE}M" >> /usr/local/etc/php/conf.d/${PHP_INI_FILE_NAME}
+	echo "post_max_size = ${PHP_POST_MAX_SIZE}M" >> ${PHPDIR}/${PHP_INI_FILE_NAME}
 fi
 
 ## changes the upload_max_filesize
 if [ -n "$PHP_UPLOAD_MAX_FILESIZE" ]; then
 	echo ">> set upload_max_filesize"
-	echo "upload_max_filesize = ${PHP_UPLOAD_MAX_FILESIZE}M" >> /usr/local/etc/php/conf.d/${PHP_INI_FILE_NAME}
+	echo "upload_max_filesize = ${PHP_UPLOAD_MAX_FILESIZE}M" >> ${PHPDIR}/${PHP_INI_FILE_NAME}
 fi
 
 ## changes the max_file_uploads
 if [ -n "$PHP_MAX_FILE_UPLOADS" ]; then
 	echo ">> set max_file_uploads"
-	echo "max_file_uploads = ${PHP_MAX_FILE_UPLOADS}" >> /usr/local/etc/php/conf.d/${PHP_INI_FILE_NAME}
+	echo "max_file_uploads = ${PHP_MAX_FILE_UPLOADS}" >> ${PHPDIR}/${PHP_INI_FILE_NAME}
 fi
 
 ####################################################
@@ -117,7 +119,7 @@ if [ "$CREATE_INDEX_FILE" -eq "1" -a ! -e "/var/www/html/index.php" ]; then
 <html>
 	<head>
 		<meta charset="utf-8">
-		<meta name="generator" content="Docker Image: tobi312/php">
+		<meta name="generator" content="Docker Image: php v.8.1.x">
 		<title>Site</title>
 		<!--<link rel="stylesheet" href="style.css">-->
 	</head>
@@ -129,6 +131,8 @@ if [ "$CREATE_INDEX_FILE" -eq "1" -a ! -e "/var/www/html/index.php" ]; then
 				echo date("Y-m-d H:i:s");
 			?>
 		</p>
+		<p>
+		<a href="phpinfo.php">PHP Info</a>
 	</body>
 </html>
 
@@ -349,6 +353,7 @@ find "/entrypoint.d/" -follow -type f -print | sort -n | while read -r f; do
 done
 
 # exec CMD
-echo ">> exec docker CMD"
-echo "$@"
-exec "$@"
+#echo ">> exec docker CMD"
+#echo "$@"
+#exec "$@"
+exec screen -dmS 'phpserv' /usr/local/bin/phpserv
