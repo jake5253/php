@@ -43,24 +43,10 @@ RUN \
     && update-ca-certificates \
     && git config --global http.sslCAinfo /etc/ssl/certs/ca-certificates.crt;
 
-# make needed folders
-RUN \
-    mkdir -p /usr/local/bin /usr/local/lib /usr/local/src /etc/cron.d; \
-    chmod 0755 /usr/local/bin /usr/local/src /usr/local/lib /etc/cron.d;
-
 # get setup stuff from github
 RUN \
-    git clone https://github.com/jake5253/php /root/setup/
-
-# crontab setup
-# Runs, by default, every Sunday at 00:01 (12:01AM)
-ADD crontab /etc/cron.d/weekly-phpupdate
-RUN chmod 0644 /etc/cron.d/weekly-phpupdate;
-ADD ./cronjob /etc/cron.d/cronjob;
-RUN chmod +x /etc/cron.d/cronjob;
-
-# Create cron log file
-RUN touch /var/log/cron.log;
+    git clone https://github.com/jake5253/php.git /root/setup/ \
+    && /root/setup/helper.sh
 
 
 # PHP bleeding edge
@@ -76,19 +62,12 @@ RUN \
     rm -rf /var/lib/apt/lists/*
 
 # PHP.ini setup
-ADD phpenmod.sh /usr/local/bin/phpenmod
-RUN chmod +x /usr/local/bin/phpenmod
 RUN /usr/local/bin/phpenmod apcu bcmath bz2 calendar dba enchant exif ffi gd gettext gmp imagick imap intl ldap memcached monodb mysqli opcache pdo_dblib pdo_mysql pdo_pgsql pgsql pspell redis shmop snmp sockets sqlite3 tidy xsl yaml zip
 
 # COMPOSER
 RUN \
 	curl -sSL https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer ; \
 	chmod +x /usr/local/bin/composer
-
-#PHP Built-in server
-COPY phpserv.sh /usr/local/bin/phpserv
-RUN \
-    chmod +x /usr/local/bin/phpserv
 
 # ENTRYPOINT
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
