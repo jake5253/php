@@ -15,6 +15,7 @@ fn_cron () {
     chmod 0744 /usr/local/bin/cronjob || fn_error
     cp ./crontab /etc/cron.d/weekly-phpupdate || fn_error
     chmod 0644 /etc/cron.d/weekly-phpupdate || fn_error
+    touch /var/log/cron.log;
 }
 
 fn_phpenmod () {
@@ -23,7 +24,7 @@ fn_phpenmod () {
 }
 
 fn_phpserv () {
-        cp ./phpserv /usr/local/bin/phpserv || fn_error
+    cp ./phpserv /usr/local/bin/phpserv || fn_error
     chmod 0755 /usr/local/bin/phpserv || fn_error
 }
 
