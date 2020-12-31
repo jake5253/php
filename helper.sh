@@ -1,15 +1,14 @@
 #!/bin/bash
 fn_error () {
-    echo -e "ERROR! $1 command failed! \n Output of ls: \n $(ls -Aln /usr)";
+    echo -e "ERROR! $1 command failed!"
     exit 1;
 }
 
 fn_dircheck () {
-    [[ ! -d /usr/bin/ ]] && { mkdir -p /usr/bin; || fn_error 'mkdir bin'; }
-    [[ ! -d /usr/lib/ ]] && { mkdir -p /usr/lib; || fn_error 'mkdir lib'; }
-    [[ ! -d /usr/src/ ]] && { mkdir -p /usr/src; || fn_error 'mkdir src'; }
-    [[ ! -d /etc/cron.d/ ]] && { mkdir -p /etc/cron.d; || fn_error 'mkdir cron.d'; }
-
+    [[ ! -d /usr/local/bin/ ]] && mkdir -p /usr/local/bin
+    [[ ! -d /usr/local/lib/ ]] && mkdir -p /usr/local/lib
+    [[ ! -d /usr/local/src/ ]] && mkdir -p /usr/local/src/
+    [[ ! -d /etc/cron.d/ ]] && mkdir -p /etc/cron.d
 }
 
 fn_cron () {
@@ -30,7 +29,7 @@ fn_phpserv () {
     chmod 0755 /usr/bin/phpserv || fn_error 'chmod phpserv'
 }
 
-fn_dircheck;
+fn_dircheck || fn_error 'directory checking';
 fn_cron;
 fn_phpenmod;
 fn_phpserv;
