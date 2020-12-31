@@ -5,10 +5,10 @@ fn_error () {
 }
 
 fn_dircheck () {
-    [[ ! -d /usr/bin/ ]] && mkdir -p /usr/bin || fn_error 'mkdir bin'
-    [[ ! -d /usr/lib/ ]] && mkdir -p /usr/lib || fn_error 'mkdir lib'
-    [[ ! -d /usr/src/ ]] && mkdir -p /usr/src || fn_error 'mkdir src'
-    [[ ! -d /etc/cron.d/ ]] && mkdir -p /etc/cron.d || fn_error 'mkdir cron.d'
+    [[ ! -d /usr/bin/ ]] && { mkdir -p /usr/bin; || fn_error 'mkdir bin'; }
+    [[ ! -d /usr/lib/ ]] && { mkdir -p /usr/lib; || fn_error 'mkdir lib'; }
+    [[ ! -d /usr/src/ ]] && { mkdir -p /usr/src; || fn_error 'mkdir src'; }
+    [[ ! -d /etc/cron.d/ ]] && { mkdir -p /etc/cron.d; || fn_error 'mkdir cron.d'; }
 
 }
 
