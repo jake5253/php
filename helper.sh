@@ -1,6 +1,6 @@
 #!/bin/bash
 fn_error () {
-    echo "ERROR! $1 command failed!";
+    echo -e "ERROR! $1 command failed! \n Output of ls: \n $(ls -Aln /usr)";
     exit 1;
 }
 
