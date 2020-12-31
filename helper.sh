@@ -1,80 +1,33 @@
 #!/bin/bash
-
-fn_mkdirs () {
-    mkdir -p /usr/local/bin
-    mkdir -p /usr/local/lib
-    mkdir -p /usr/local/src
-    mkdir -p /etc/cron.d
-}
-
-fn_setdirperms () {
-    chmod $
-}
-
-fn_setfileperms () {
-    chmod $2 $3
-}
-
-fn_cronsetup () {
-cat <<<
-"#!/bin/bash
-set -e
-log='/var/log/cron.log';
 fn_error () {
-case $? in
-    1)
-    { echo 'ERROR! Could not get source from Github. Stopping' >> $log; exit 1; }
-    ;;
-    2)
-    { echo 'ERROR! PHP build failed. Stopping' >> $log; exit 1; }
-    ;;
-    3)
-    { echo 'ERROR! Source directory was not removed. Unable to stop at this point. Next time this runs, you might have problems.' >> $log; exit 1; }
-    ;;
-    *)
-    { echo 'ERROR! ' ${0} ' command failed!' >> $log; exit 1; }
-    ;;
-esac
-}
-fn_cloneOrUpdate () {
-[[ -d /usr/local/src/php-src ]] && fn_updatesrc || fn_clonesrc
-}
-fn_clonesrc () {
-[[ ! -d /usr/local/src/php-src ]] && mkdir -p /usr/local/src;
-git clone https://github.com/php/php-src.git --single-branch --shallow-submodules /usr/local/src/php-src || fn_error 1
-echo 'Source clone succeeded.' >> $log;
-}
-fn_updatesrc () {
-cd /usr/local/src/php-src
-git pull --update-shallow --recurse-submodules=yes || fn_error 1
-echo 'Source update succeeded.' >> $log;
+    echo "ERROR! $0 command failed!";
+    exit 1;
 }
 
-fn_buildfromsrc () {
-    cd /usr/local/src/php-src
-    ./buildconf || fn_error
-    ./configure --prefix=/usr/local --with-zip --enable-opcache --with-zlib --enable-sockets --with-openssl || fn_error
-    make -j$(nproc) || fn_error
-    make install || fn_error
-    echo 'Build succeeded.' >> $log;
+fn_dircheck () {
+    [[ ! -d /usr/local/bin/ ]] && mkdir -p -m 0755 /usr/local/bin || fn_error
+    [[ ! -d /usr/local/lib/ ]] && mkdir -p -m 0755 /usr/local/lib || fn_error
+    [[ ! -d /usr/local/src/ ]] && mkdir -p -m 0755 /usr/local/src || fn_error
 }
 
-fn_cleanup () {
-    cd /usr/local/src/php-src
-    make distclean ||  fn_error
-   echo 'Source directory cleaned' >> $log;
+fn_cron () {
+    cp ./cronjob /usr/local/bin/cronjob || fn_error
+    chmod 0744 /usr/local/bin/cronjob || fn_error
+    cp ./crontab /etc/cron.d/weekly-phpupdate || fn_error
+    chmod 0644 /etc/cron.d/weekly-phpupdate || fn_error
 }
 
-
-
-fn_cloneOrUpdate;
-fn_buildfromsrc;
-fn_cleanup;" | tee /usr/local/bin/cronjob.sh;
-chmod 0644 /usr/local/bin/cronjob.sh;
+fn_phpenmod () {
+    cp ./phpenmod /usr/local/bin/phpenmod || fn_error
+    chmod 0755 /usr/local/bin/phpenmod || fn_error
 }
 
-case $1 in
-    chmodd)
-    fn_setdirperms $2
-    chmodf)
-    *)
+fn_phpserv () {
+        cp ./phpserv /usr/local/bin/phpserv || fn_error
+    chmod 0755 /usr/local/bin/phpserv || fn_error
+}
+
+fn_dircheck;
+fn_cron;
+fn_phpenmod;
+fn_phpserv;
