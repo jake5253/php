@@ -12,21 +12,21 @@ fn_dircheck () {
 }
 
 fn_cron () {
-    cp ./cronjob /usr/bin/cronjob || fn_error 'cp cronjob'
-    chmod 0744 /usr/bin/cronjob || fn_error 'chmod cronjob'
-    cp ./crontab /etc/cron.d/weekly-phpupdate || fn_error 'cp crontab'
+    [[ -e cronjob ]] && echo 'cronjob okay'; cp cronjob /usr/local/bin/cronjob || fn_error 'cp cronjob'
+    chmod 0744 /usr/local/bin/cronjob || fn_error 'chmod cronjob'
+    [[ -e crontab ]] && echo 'crontab okay'; cp ./crontab /etc/cron.d/weekly-phpupdate || fn_error 'cp crontab'
     chmod 0644 /etc/cron.d/weekly-phpupdate || fn_error 'chmod crontab'
     touch /var/log/cron.log || fn_error 'touch cron.log'
 }
 
 fn_phpenmod () {
-    cp ./phpenmod /usr/bin/phpenmod || fn_error 'cp phpenmod'
-    chmod 0755 /usr/bin/phpenmod || fn_error 'chmod phpenmod'
+    [[ -e phpenmod ]] && echo 'phpenmod'; cp ./phpenmod /usr/local/bin/phpenmod || fn_error 'cp phpenmod'
+    chmod 0755 /usr/local/bin/phpenmod || fn_error 'chmod phpenmod'
 }
 
 fn_phpserv () {
-    cp ./phpserv /usr/bin/phpserv || fn_error 'cp phpserv'
-    chmod 0755 /usr/bin/phpserv || fn_error 'chmod phpserv'
+    [[ -e phpserv ]] && echo 'phpserv okay'; cp ./phpserv /usr/local/bin/phpserv || fn_error 'cp phpserv'
+    chmod 0755 /usr/local/bin/phpserv || fn_error 'chmod phpserv'
 }
 
 fn_dircheck || fn_error 'directory checking';
