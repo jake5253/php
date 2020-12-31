@@ -5,9 +5,9 @@ fn_error () {
 }
 
 fn_dircheck () {
-    [[ ! -d /usr/local/bin/ ]] && mkdir -p -m 0755 /usr/local/bin || fn_error 'mkdir bin'
-    [[ ! -d /usr/local/lib/ ]] && mkdir -p -m 0755 /usr/local/lib || fn_error 'mkdir lib'
-    [[ ! -d /usr/local/src/ ]] && mkdir -p -m 0755 /usr/local/src || fn_error 'mkdir src'
+    [[ ! -d /usr/local/bin/ ]] && mkdir -p /usr/local/bin || fn_error 'mkdir bin'
+    [[ ! -d /usr/local/lib/ ]] && mkdir -p /usr/local/lib || fn_error 'mkdir lib'
+    [[ ! -d /usr/local/src/ ]] && mkdir -p /usr/local/src || fn_error 'mkdir src'
 }
 
 fn_cron () {
